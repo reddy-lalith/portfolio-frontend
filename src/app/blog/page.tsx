@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { client } from '../../lib/sanity.client';
+import { getSanityClient } from '../../lib/sanity.client';
 import { groq } from 'next-sanity';
 
 interface Post {
@@ -15,16 +15,22 @@ interface Post {
   }[];
 }
 
-async function getPosts() {
-  const query = groq`*[_type == "post"] | order(publishedAt desc) {
-    _id,
-    title,
-    "slug": slug.current,
-    publishedAt,
-    summary,
-    "categories": categories[]->{title}
-  }`;
-  return client.fetch<Post[]>(query);
+async function getPosts(): Promise<Post[]> {
+  try {
+    const client = getSanityClient();
+    const query = groq`*[_type == "post"] | order(publishedAt desc) {
+      _id,
+      title,
+      "slug": slug.current,
+      publishedAt,
+      summary,
+      "categories": categories[]->{title}
+    }`;
+    return await client.fetch<Post[]>(query);
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    return [];
+  }
 }
 
 const BlogPage = async () => {
