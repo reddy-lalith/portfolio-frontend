@@ -10,7 +10,11 @@ interface GitHubEvent {
     name: string;
   };
   created_at: string;
-  payload: any;
+  payload: {
+    ref_type?: string;
+    action?: string;
+    [key: string]: unknown;
+  };
 }
 
 const getEventIcon = (type: string) => {
@@ -121,9 +125,9 @@ export default function GitHubActivity() {
     }
   }, [loading, feed]);
 
-  // Refresh data every 5 minutes
+  // Refresh data every 1 minute
   useEffect(() => {
-    const interval = setInterval(fetchGitHubActivity, 5 * 60 * 1000);
+    const interval = setInterval(fetchGitHubActivity, 1 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 

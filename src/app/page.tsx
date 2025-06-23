@@ -1,5 +1,4 @@
 // app/page.tsx
-import Link from 'next/link';
 import { FaGithub, FaLinkedin } from 'react-icons/fa';
 import GitHubActivity from '@/components/GitHubActivity';
 import EmailLink from '@/components/EmailLink';

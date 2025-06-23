@@ -11,7 +11,15 @@ interface Post {
     current: string;
   };
   publishedAt: string;
-  body: any[];
+  body: {
+    _type: string;
+    children?: Array<{
+      _type: string;
+      text: string;
+      marks?: string[];
+    }>;
+    [key: string]: unknown;
+  }[];
   mainImage?: {
     asset: {
       _ref: string;

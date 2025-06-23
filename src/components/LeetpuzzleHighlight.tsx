@@ -57,7 +57,7 @@ export default function LeetpuzzleHighlight() {
           </div>
           {/* Puzzle pieces row */}
           <div className="flex gap-3 mt-4">
-            {pieces.map((piece, i) => (
+            {pieces.map((piece) => (
               <span
                 key={piece.text}
                 className={`inline-block px-4 py-2 rounded-lg font-mono text-base border-2 transition-all duration-700 cursor-pointer select-none

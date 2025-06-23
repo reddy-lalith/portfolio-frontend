@@ -12,8 +12,21 @@ interface ProjectData {
   slug: {
     current: string;
   };
-  mainImage?: any; // Adjust based on your Sanity image schema & add alt
-  body?: any[];
+  mainImage?: {
+    asset: {
+      _ref: string;
+    };
+    alt?: string;
+  };
+  body?: {
+    _type: string;
+    children?: Array<{
+      _type: string;
+      text: string;
+      marks?: string[];
+    }>;
+    [key: string]: unknown;
+  }[];
   publishedDate?: string;
   projectUrl?: string;
   repositoryUrl?: string;
