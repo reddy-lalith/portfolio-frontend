@@ -1,8 +1,6 @@
 // src/lib/sanity.image.ts
 import imageUrlBuilder from '@sanity/image-url';
-import { client } from './sanity.client';
-
-const builder = imageUrlBuilder(client);
+import { getSanityClient } from './sanity.client';
 
 export function urlForImage(source: {
   _type: string;
@@ -11,8 +9,16 @@ export function urlForImage(source: {
   };
   [key: string]: unknown;
 }) {
-  if (!source || !source.asset) {
+  try {
+    const client = getSanityClient();
+    const builder = imageUrlBuilder(client);
+    
+    if (!source || !source.asset) {
+      return undefined;
+    }
+    return builder.image(source);
+  } catch (error) {
+    console.warn('Sanity image builder not available:', error);
     return undefined;
   }
-  return builder.image(source);
 }
