@@ -1,6 +1,20 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
+interface GitHubEvent {
+  id: string;
+  type: string;
+  repo: {
+    name: string;
+  };
+  created_at: string;
+  payload: {
+    ref_type?: string;
+    action?: string;
+    [key: string]: unknown;
+  };
+}
+
+export async function GET() {
   try {
     const username = process.env.GITHUB_USERNAME || 'reddy-lalith';
     const token = process.env.GITHUB_TOKEN;
@@ -33,11 +47,11 @@ export async function GET(request: NextRequest) {
 
     // Filter and format events
     const filteredEvents = events
-      .filter((event: any) => 
+      .filter((event: GitHubEvent) => 
         ['PushEvent', 'CreateEvent', 'PullRequestEvent', 'IssuesEvent', 'ForkEvent'].includes(event.type)
       )
       .slice(0, 5)
-      .map((event: any) => ({
+      .map((event: GitHubEvent) => ({
         id: event.id,
         type: event.type,
         repo: {
