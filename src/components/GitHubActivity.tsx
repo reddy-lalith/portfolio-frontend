@@ -127,9 +127,9 @@ export default function GitHubActivity() {
     }
   }, [loading, feed]);
 
-  // Refresh data every 1 minute
+  // Refresh data every 30 seconds (for testing)
   useEffect(() => {
-    const interval = setInterval(fetchGitHubActivity, 1 * 60 * 1000);
+    const interval = setInterval(fetchGitHubActivity, 30 * 1000);
     return () => clearInterval(interval);
   }, []);
 
