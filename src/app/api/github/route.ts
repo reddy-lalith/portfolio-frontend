@@ -19,7 +19,10 @@ export async function GET() {
     const username = process.env.GITHUB_USERNAME || 'reddy-lalith';
     const token = process.env.GITHUB_TOKEN;
 
+    console.log('GitHub API called for username:', username); // Debug log
+
     if (!token) {
+      console.log('No GitHub token found'); // Debug log
       return NextResponse.json(
         { error: 'GitHub token not configured' },
         { status: 500 }
@@ -44,6 +47,7 @@ export async function GET() {
     }
 
     const events = await response.json();
+    console.log('Raw GitHub events:', events.slice(0, 3)); // Debug log - show first 3 events
 
     // Filter and format events
     const filteredEvents = events
@@ -61,6 +65,7 @@ export async function GET() {
         payload: event.payload
       }));
 
+    console.log('Filtered events:', filteredEvents); // Debug log
     return NextResponse.json(filteredEvents);
   } catch (error) {
     console.error('GitHub API error:', error);

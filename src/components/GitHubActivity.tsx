@@ -62,6 +62,8 @@ export default function GitHubActivity() {
       }
       
       const data = await response.json();
+      console.log('GitHub API Response:', data); // Debug log
+      
       if (data.error) {
         throw new Error(data.error);
       }
