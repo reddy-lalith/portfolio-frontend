@@ -1,8 +1,8 @@
 // app/page.tsx
 import Link from 'next/link';
 import { FaGithub, FaLinkedin } from 'react-icons/fa';
-import { SiGmail } from 'react-icons/si'; // For the Gmail icon
 import GitHubActivity from '@/components/GitHubActivity';
+import EmailLink from '@/components/EmailLink';
 
 export default function HomePage() {
   return (
@@ -40,20 +40,7 @@ export default function HomePage() {
               >
                   <FaLinkedin size={24} />
               </a>
-              <a 
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    const parts = ['lalith2023', '@', 'gmail', '.', 'com'];
-                    const email = parts.join('');
-                    window.location.href = `mailto:${email}`;
-                  }}
-                  aria-label="Email"
-                  className="text-gray-400 hover:text-white transition-colors"
-                  data-email="lalith2023@gmail.com"
-              >
-                  <SiGmail size={24} />
-              </a>
+              <EmailLink />
             </div>
           </div>
 
