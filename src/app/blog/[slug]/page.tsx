@@ -1,4 +1,4 @@
-import { client } from '../../../lib/sanity.client';
+import { getSanityClient } from '../../../lib/sanity.client';
 import { groq } from 'next-sanity';
 import { PortableText } from '@portabletext/react';
 import { urlForImage } from '../../../lib/sanity.image';
@@ -34,24 +34,25 @@ interface Post {
 
 export async function generateStaticParams() {
   const query = groq`*[_type == "post"]{ "slug": slug.current }`;
-  const slugs = await client.fetch<{slug: string}[]>(query);
+  const slugs = await getSanityClient().fetch<{slug: string}[]>(query);
   return slugs.map(({ slug }) => ({ slug }));
 }
 
 async function getPost(slug: string): Promise<Post | null> {
-  const query = groq`
-    *[_type == "post" && slug.current == $slug][0] {
-      _id,
-      title,
-      slug,
-      publishedAt,
-      body,
-      mainImage,
-      categories[]->{title}
-    }
-  `;
-  
   try {
+    const client = getSanityClient();
+    const query = groq`
+      *[_type == "post" && slug.current == $slug][0] {
+        _id,
+        title,
+        slug,
+        publishedAt,
+        body,
+        mainImage,
+        categories[]->{title}
+      }
+    `;
+    
     return await client.fetch(query, { slug });
   } catch (error) {
     console.error('Error fetching post:', error);

@@ -4,16 +4,25 @@ const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET
 const apiVersion = process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2025-06-04' // Fallback
 
-if (!projectId || !dataset) {
-  throw new Error(
-    'Sanity projectId or dataset missing. Check your .env.local file.',
-  )
+// Only create client if environment variables are present
+let client: SanityClient | null = null;
+
+if (projectId && dataset) {
+  client = createClient({
+    projectId,
+    dataset,
+    apiVersion, // https://www.sanity.io/docs/api-versioning
+    useCdn: process.env.NODE_ENV === 'production', // Use CDN in production for faster responses
+    // perspective: 'published', // Default is 'published', 'raw' for drafts, 'previewDrafts' for previews
+  });
 }
 
-export const client: SanityClient = createClient({
-  projectId,
-  dataset,
-  apiVersion, // https://www.sanity.io/docs/api-versioning
-  useCdn: process.env.NODE_ENV === 'production', // Use CDN in production for faster responses
-  // perspective: 'published', // Default is 'published', 'raw' for drafts, 'previewDrafts' for previews
-})
+// Safe client function that handles null case
+export const getSanityClient = () => {
+  if (!client) {
+    throw new Error('Sanity client not configured. Please set NEXT_PUBLIC_SANITY_PROJECT_ID and NEXT_PUBLIC_SANITY_DATASET environment variables.');
+  }
+  return client;
+};
+
+export { client };

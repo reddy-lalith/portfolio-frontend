@@ -1,5 +1,5 @@
 // app/projects/[slug]/page.tsx
-import { client } from '@/lib/sanity.client';
+import { getSanityClient } from '@/lib/sanity.client';
 import { PortableText } from '@portabletext/react';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
@@ -40,19 +40,20 @@ interface PageProps {
 }
 
 async function getProject(slug: string): Promise<ProjectData | null> {
-  const query = `*[_type == "project" && slug.current == $slug][0]{
-    _id,
-    title,
-    slug,
-    mainImage,
-    body,
-    publishedDate,
-    projectUrl,
-    repositoryUrl,
-    technologies
-  }`;
-  
   try {
+    const client = getSanityClient();
+    const query = `*[_type == "project" && slug.current == $slug][0]{
+      _id,
+      title,
+      slug,
+      mainImage,
+      body,
+      publishedDate,
+      projectUrl,
+      repositoryUrl,
+      technologies
+    }`;
+    
     return await client.fetch(query, { slug });
   } catch (error) {
     console.error('Error fetching project:', error);
