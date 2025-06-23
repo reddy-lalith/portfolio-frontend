@@ -21,9 +21,11 @@ interface Post {
     [key: string]: unknown;
   }[];
   mainImage?: {
+    _type: string;
     asset: {
       _ref: string;
     };
+    [key: string]: unknown;
   };
   categories?: {
     title: string;
@@ -36,21 +38,30 @@ export async function generateStaticParams() {
   return slugs.map(({ slug }) => ({ slug }));
 }
 
-async function getPost(slug: string) {
-  const query = groq`*[_type == "post" && slug.current == $slug][0]{
-    _id,
-    title,
-    "slug": slug.current,
-    publishedAt,
-    body,
-    mainImage,
-    "categories": categories[]->{title}
-  }`;
-  return client.fetch<Post>(query, { slug });
+async function getPost(slug: string): Promise<Post | null> {
+  const query = groq`
+    *[_type == "post" && slug.current == $slug][0] {
+      _id,
+      title,
+      slug,
+      publishedAt,
+      body,
+      mainImage,
+      categories[]->{title}
+    }
+  `;
+  
+  try {
+    return await client.fetch(query, { slug });
+  } catch (error) {
+    console.error('Error fetching post:', error);
+    return null;
+  }
 }
 
-const BlogPostPage = async ({ params }: { params: { slug: string } }) => {
-  const post = await getPost(params.slug);
+const BlogPostPage = async ({ params }: { params: Promise<{ slug: string }> }) => {
+  const { slug } = await params;
+  const post = await getPost(slug);
   const imageUrl = post?.mainImage ? urlForImage(post.mainImage)?.width(1200).height(600).url() : null;
 
   if (!post) {

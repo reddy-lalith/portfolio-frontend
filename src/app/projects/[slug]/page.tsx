@@ -13,10 +13,12 @@ interface ProjectData {
     current: string;
   };
   mainImage?: {
+    _type: string;
     asset: {
       _ref: string;
     };
     alt?: string;
+    [key: string]: unknown;
   };
   body?: {
     _type: string;
@@ -34,9 +36,7 @@ interface ProjectData {
 }
 
 interface PageProps {
-  params: {
-    slug: string;
-  };
+  params: Promise<{ slug: string }>;
 }
 
 async function getProject(slug: string): Promise<ProjectData | null> {
@@ -44,25 +44,25 @@ async function getProject(slug: string): Promise<ProjectData | null> {
     _id,
     title,
     slug,
-    mainImage, // Ensure mainImage includes alt if you defined it in Sanity
+    mainImage,
     body,
     publishedDate,
     projectUrl,
     repositoryUrl,
     technologies
   }`;
-  const project = await client.fetch<ProjectData | null>(query, { slug });
-  return project;
-}
-
-export async function generateStaticParams() {
-  const query = `*[_type == "project" && defined(slug.current)]{ "slug": slug.current }`;
-  const slugs: Array<{ slug: string }> = await client.fetch(query);
-  return slugs.map((item) => ({ slug: item.slug }));
+  
+  try {
+    return await client.fetch(query, { slug });
+  } catch (error) {
+    console.error('Error fetching project:', error);
+    return null;
+  }
 }
 
 export default async function ProjectPage({ params }: PageProps) {
-  const project = await getProject(params.slug);
+  const { slug } = await params;
+  const project = await getProject(slug);
 
   if (!project) {
     notFound();
