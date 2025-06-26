@@ -45,7 +45,7 @@ const getTimeAgo = (date: string) => {
 
 export default function GitHubActivity() {
   const [badgeVisible, setBadgeVisible] = useState(false);
-  const [cardVisible, setCardVisible] = useState([false, false, false, false, false]);
+  const [cardVisible, setCardVisible] = useState([false, false, false, false]);
   const [feed, setFeed] = useState<GitHubEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -119,7 +119,7 @@ export default function GitHubActivity() {
       const timeouts: NodeJS.Timeout[] = [];
       
       // Animate in each card after badge
-      feed.slice(0, 5).forEach((_, i) => {
+      feed.slice(0, 4).forEach((_, i) => {
         timeouts.push(setTimeout(() => {
           setCardVisible((prev) => {
             const next = [...prev];
@@ -149,7 +149,7 @@ export default function GitHubActivity() {
           </span>
         </div>
         <div className="pt-6" />
-        {[0, 1, 2, 3, 4].map((i) => (
+        {[0, 1, 2, 3].map((i) => (
           <div key={i} className="p-2 bg-white/5 rounded-lg flex items-center gap-2" style={{ minHeight: '44px' }}>
             <div className="animate-pulse bg-gray-600 h-4 w-4 rounded" />
             <div className="flex-grow">
@@ -175,7 +175,7 @@ export default function GitHubActivity() {
         </span>
       </div>
       <div className="pt-6" />
-      {[0, 1, 2, 3, 4].map((i) => {
+      {[0, 1, 2, 3].map((i) => {
         const event = feed[i];
         return (
           <div
