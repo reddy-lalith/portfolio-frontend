@@ -33,16 +33,18 @@ export async function GET() {
       );
     }
 
-    // Fetch user's public events - get more events to ensure we have recent ones
+    // Fetch user's events (including private ones if token has access)
     const response = await fetch(
-      `https://api.github.com/users/${username}/events/public?per_page=30`,
+      `https://api.github.com/users/${username}/events?per_page=50`,
       {
         headers: {
-          'Authorization': `token ${token}`,
+          'Authorization': `Bearer ${token}`,
           'Accept': 'application/vnd.github.v3+json',
-          'User-Agent': 'portfolio-app'
+          'User-Agent': 'portfolio-app',
+          'X-GitHub-Api-Version': '2022-11-28'
         },
-        cache: 'no-store' // Don't cache - always fetch fresh data
+        cache: 'no-store', // Don't cache - always fetch fresh data
+        next: { revalidate: 0 } // Next.js specific - no caching
       }
     );
 
@@ -55,12 +57,15 @@ export async function GET() {
     console.log('Raw GitHub events:', events.slice(0, 5)); // Debug log - show first 5 events
     console.log('Most recent event date:', events[0]?.created_at); // Debug log
 
-    // Filter and format events
+    // Filter and format events - include more event types
     const filteredEvents = events
       .filter((event: GitHubEvent) => 
-        ['PushEvent', 'CreateEvent', 'PullRequestEvent', 'IssuesEvent', 'ForkEvent'].includes(event.type)
+        ['PushEvent', 'CreateEvent', 'PullRequestEvent', 'IssuesEvent', 'ForkEvent', 
+         'WatchEvent', 'DeleteEvent', 'PublicEvent', 'MemberEvent', 'CommitCommentEvent',
+         'PullRequestReviewEvent', 'PullRequestReviewCommentEvent', 'IssueCommentEvent',
+         'ReleaseEvent'].includes(event.type)
       )
-      .slice(0, 5)
+      .slice(0, 10) // Get more events
       .map((event: GitHubEvent) => ({
         id: event.id,
         type: event.type,
@@ -73,7 +78,15 @@ export async function GET() {
 
     console.log('Filtered events count:', filteredEvents.length); // Debug log
     console.log('Filtered events:', filteredEvents); // Debug log
-    return NextResponse.json(filteredEvents);
+    
+    // Return with no-cache headers
+    return NextResponse.json(filteredEvents, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      }
+    });
   } catch (error) {
     console.error('GitHub API error:', error);
     return NextResponse.json(
